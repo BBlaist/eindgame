@@ -13,7 +13,6 @@ import { GameOver } from './gameover.js'
 export class Game extends Engine {
 
     // Constructor: initialiseert de game-engine en globale state
-    // (schermen, timers, snelheden en UI elementen)
     constructor() {
         super({ 
             width: 1000, 
@@ -33,10 +32,8 @@ export class Game extends Engine {
 
          // Laad alle resources eerst en zet scenes op
          this.start(ResourceLoader).then(() => {
-             // eenvoudige StartScene die N/S-toetsen accepteert
              class StartScene extends Scene {
                  onInitialize(engine) {
-                    // maak klikbare knoppen zodat speler met muis kan kiezen
                     console.log('StartScene: druk N voor Normal, S voor Speed of klik een knop')
                     this._container = document.createElement('div')
                     this._container.style = 'position: absolute; inset: 0; display:flex; flex-direction:column; justify-content:center; align-items:center; background: rgba(0,0,0,0.5); z-index: 10000;'
@@ -57,7 +54,6 @@ export class Game extends Engine {
                     this._speedBtn.addEventListener('click', this._speedHandler)
                  }
                 onDeactivate() {
-                    // verwijder DOM knoppen als scene verlaten wordt
                     if (this._normalBtn && this._normalHandler) this._normalBtn.removeEventListener('click', this._normalHandler)
                     if (this._speedBtn && this._speedHandler) this._speedBtn.removeEventListener('click', this._speedHandler)
                     if (this._container && this._container.parentNode) this._container.parentNode.removeChild(this._container)
@@ -77,10 +73,8 @@ export class Game extends Engine {
                  }
              }
 
-             // PlayScene: roept engine.startGame() aan wanneer we naar 'play' gaan
              class PlayScene extends Scene {
                  onInitialize(engine) {
-                     // kies obstacleSpeedStep op basis van gekozen modus
                      if (engine.gameMode === 'normal') {
                          engine.obstacleSpeedStep = 0
                      } else {
@@ -163,7 +157,6 @@ export class Game extends Engine {
         this.powerupTimer.start()
     }
 
-    // spawnObstacle: maakt één of meerdere obstakels en voegt ze toe aan de game
     spawnObstacle() {
         const spawnCount = 1 + (Math.random() < 0.35 ? 1 : 0)
         for (let i = 0; i < spawnCount; i++) {
@@ -176,7 +169,6 @@ export class Game extends Engine {
         }
     }
 
-    // spawnPowerup: maakt een levens-powerup en plaatst deze op de vloer
     spawnPowerup() {
         const floorTop = 580 - 146 / 2
         const powerupY = floorTop - 16
@@ -185,7 +177,6 @@ export class Game extends Engine {
         this.powerups.push(powerup)
     }
 
-    // triggerGameOver: stopt het spel en toont het game-over scherm
     triggerGameOver() {
         this.isGameOver = true
         this.obstacleTimer.stop()
@@ -201,7 +192,6 @@ export class Game extends Engine {
         this.triggerGameOver()
     }
 
-    // handlePlayerHit: afhandeling wanneer speler een obstakel raakt
     handlePlayerHit(obstacle) {
         if (!obstacle || obstacle.hit) return
         obstacle.hit = true
@@ -211,7 +201,6 @@ export class Game extends Engine {
         }
     }
 
-    // addLife: afhandeling wanneer speler een powerup oppakt
     addLife(powerup) {
         if (!powerup || powerup.picked) return
         powerup.picked = true
@@ -219,7 +208,6 @@ export class Game extends Engine {
         this.lives.gain()
     }
 
-    // increaseObstacleSpeed: verhoogt de snelheid van obstakels
     increaseObstacleSpeed() {
         this.obstacleSpeed += this.obstacleSpeedStep
         this.floatingObstacleSpeed += this.obstacleSpeedStep
@@ -251,9 +239,8 @@ export class Game extends Engine {
             for (let obs of this.obstacles) {
                 if (!obs || obs.scored) continue
                 
-                // --- Fallback Production Collision Check ---
-                // If minification breaks Excalibur collision listeners, this acts as a foolproof backup
-                if (!obs.hit && !this.isGameOver) {
+                // OPGELOST: Toegevoegd `obs.hasTag('obstacle')` zodat de vloer niet onbedoeld getriggerd wordt!
+                if (!obs.hit && !this.isGameOver && typeof obs.hasTag === 'function' && obs.hasTag('obstacle')) {
                     const distance = this.player.pos.distance(obs.pos)
                     if (distance < 45) { 
                         this.handlePlayerHit(obs)
@@ -276,9 +263,10 @@ export class Game extends Engine {
         if (this.powerups && this.player) {
             for (let p of this.powerups) {
                 if (!p || p.picked || this.isGameOver) continue
-                // Fallback check for picking up powerups
-                if (this.player.pos.distance(p.pos) < 45) {
-                    this.addLife(p)
+                if (typeof p.hasTag === 'function' && p.hasTag('powerup')) {
+                    if (this.player.pos.distance(p.pos) < 45) {
+                        this.addLife(p)
+                    }
                 }
             }
             this.powerups = this.powerups.filter(p => p && p.pos.x > -500)
