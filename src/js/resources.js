@@ -1,17 +1,17 @@
 import { ImageSource, Sound, Resource, Loader } from 'excalibur'
 
-// voeg hier jouw eigen resources toe
 const Resources = {
-    Fish: new ImageSource('images/fish.png'),
-    Shark: new ImageSource('images/shark.png')
+    Bird: new ImageSource('images/bird.png'),
+    Floor: new ImageSource('images/floor.jpg'),
+    Hollow: new ImageSource('images/hollow.png'),
+    Background1: new ImageSource('images/background1.jpg'),
 }
 
-
-
-
-const ResourceLoader = new Loader()
-for (let res of Object.values(Resources)) {
-    ResourceLoader.addResource(res)
+const resourceArray = []
+for (const key in Resources) {
+    resourceArray.push(Resources[key])
 }
+
+const ResourceLoader = new Loader(resourceArray)
 
 export { Resources, ResourceLoader }
