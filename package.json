@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --outDir=docs --base=./",
-    "preview": "vite preview --outDir docs"
+    "preview": "vite preview --outDir docs",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d docs"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
