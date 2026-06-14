@@ -2,30 +2,33 @@ import { Actor, Vector, CollisionType } from "excalibur";
 import { Resources } from './resources.js';
 
 export class Background extends Actor {
-  constructor(xPos = 0) {
+  // Constructor: achtergrond actor met standaard positie en grootte
+  constructor(xPos = 0, key = 'Background1') {
     super({
       x: xPos,
       y: 300,
       width: 1000,
       height: 600
     });
-    // PreventCollision is better for backgrounds to save performance
-    this.body.collisionType = CollisionType.PreventCollision; 
-    
-    // Set the velocity directly. Excalibur handles the frame-rate math for you.
-    this.vel.x = -200; 
+    this.body.collisionType = CollisionType.PreventCollision;
+    this.vel.x = -200;
+    this.key = key
   }
 
+  // onInitialize: zet de sprite afbeelding voor deze achtergrond
   onInitialize(engine) {
-    this.graphics.use(Resources.Background1.toSprite());
+    this.setImage(this.key)
   }
 
-  onPostUpdate(engine) {
-    // If the background moves completely off the left side of the screen
-    // Move it to the back of the line (assuming 1000 is your image width)
-    // If your anchor is the default (0.5, 0.5), it is off-screen at -500
-    if (this.pos.x <= -500) {
-      this.pos.x += 2000; // Jump ahead of the second background
+  // setImage: kiest welke resource-achtergrond afbeelding gebruikt wordt
+  setImage(key) {
+    this.key = key
+    if (Resources[key]) {
+      this.graphics.use(Resources[key].toSprite())
     }
+  }
+
+  // onPostUpdate: per-frame logica voor de achtergrond (placeholder)
+  onPostUpdate(engine) {
   }
 }
