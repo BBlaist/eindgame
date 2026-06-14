@@ -1,15 +1,16 @@
-import { ImageSource, Sound, Resource, Loader } from 'excalibur'
+import { ImageSource, Loader } from 'excalibur'
 
 // Resources: verzamelt alle afbeeldingsbronnen die in het spel worden gebruikt
+// Met de URL wrapper snapt Vite exact hoe de assets verplaatst moeten worden in de productiebuild.
 const Resources = {
-    Powerup: new ImageSource('images/powerup.png'),
-    Enemy: new ImageSource('images/enemy.png'),
-    Floor: new ImageSource('images/floor2.jpg'),
-    Samus: new ImageSource('images/samus.png'),
-    Background1: new ImageSource('images/background1.png'),
-    Background2: new ImageSource('images/background2.png'),
-    Background3: new ImageSource('images/background3.png'),
-    Background4: new ImageSource('images/background4.png'),
+    Powerup: new ImageSource(new URL('/images/powerup.png', import.meta.url).href),
+    Enemy: new ImageSource(new URL('/images/enemy.png', import.meta.url).href),
+    Floor: new ImageSource(new URL('/images/floor2.jpg', import.meta.url).href),
+    Samus: new ImageSource(new URL('/images/samus.png', import.meta.url).href),
+    Background1: new ImageSource(new URL('/images/background1.png', import.meta.url).href),
+    Background2: new ImageSource(new URL('/images/background2.png', import.meta.url).href),
+    Background3: new ImageSource(new URL('/images/background3.png', import.meta.url).href),
+    Background4: new ImageSource(new URL('/images/background4.png', import.meta.url).href),
 }
 
 const resourceArray = []

@@ -1,4 +1,4 @@
-import { Actor, Keys, Vector, CollisionType } from "excalibur"
+import { Actor, Keys, Vector, CollisionType, Shape } from "excalibur"
 import { Resources } from './resources'
 
 export class Player extends Actor {
@@ -6,11 +6,14 @@ export class Player extends Actor {
     // Constructor: initialiseert speleractor (grootte, positie en collider)
     constructor() {
         super({ 
+            x: 200,
+            y: 360,
             width: 64,
-            height: 64
+            height: 64,
+            collisionType: CollisionType.Active,
+            collider: Shape.Box(64, 64) // Direct hardcoded toewijzen voorkomt timing-fouten in de build
         })
-        this.pos = new Vector(200, 360)
-        this.body.collisionType = CollisionType.Active
+        
         this._engine = null
         this._isCrouching = false
         this._crouchOffset = 16
@@ -20,7 +23,11 @@ export class Player extends Actor {
     // onInitialize: zet graphics en event listeners voor collisions
     onInitialize(engine) {
         this._engine = engine
-        this.graphics.use(Resources.Samus.toSprite())
+        if (Resources.Samus) {
+            this.graphics.use(Resources.Samus.toSprite())
+        }
+        
+        // Luister naar collisionstart event
         this.on("collisionstart", (evt) => this.hitSomething(evt))
     }
 
@@ -71,19 +78,22 @@ export class Player extends Actor {
         this.pos = new Vector(this.pos.x, this.pos.y - this._crouchOffset)
     }
 
-    // hitSomething: collision handler die bepaalt wat er geraakt is
-    // en acties (leven verliezen / powerup oppakken) aanroept
+    // hitSomething: collision handler die tags controleert ipv class constructor namen
     hitSomething(event) {
-        if (!event.other || !event.other.owner) return
-        const other = event.other.owner
-        if (other.constructor && other.constructor.name === 'Obstacle') {
+        if (!event.other) return
+        
+        const otherActor = event.other;
+
+        // Controleer met .hasTag() -> dit werkt ALTIJD, zelfs na minificatie door Vite!
+        if (otherActor.hasTag('obstacle')) {
             if (this._engine && typeof this._engine.handlePlayerHit === 'function') {
-                this._engine.handlePlayerHit(other)
+                this._engine.handlePlayerHit(otherActor)
             }
         }
-        if (other.constructor && other.constructor.name === 'Powerup') {
+        
+        if (otherActor.hasTag('powerup')) {
             if (this._engine && typeof this._engine.addLife === 'function') {
-                this._engine.addLife(other)
+                this._engine.addLife(otherActor)
             }
         }
     }

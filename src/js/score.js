@@ -2,10 +2,17 @@ export class Score {
   // Constructor: initialiseert score manager, UI element en positie
   constructor(initialScore = 0) {
     this.score = initialScore
+
+    // UI opschonen indien deze al bestaat van een vorige sessie
+    const oldUI = document.getElementById('score')
+    if (oldUI) oldUI.remove()
+
     this.createUI()
     this.updateText()
     this.updatePosition()
-    window.addEventListener('resize', () => this.updatePosition())
+    
+    this._resizeHandler = () => this.updatePosition()
+    window.addEventListener('resize', this._resizeHandler)
   }
 
   // createUI: maakt het score DOM-element en voegt het toe aan de pagina
@@ -42,5 +49,13 @@ export class Score {
   reset() {
     this.score = 0
     this.updateText()
+  }
+
+  // destroy: ruimt event listeners en elementen netjes op bij game over/reset
+  destroy() {
+    window.removeEventListener('resize', this._resizeHandler)
+    if (this.el && this.el.parentNode) {
+      this.el.parentNode.removeChild(this.el)
+    }
   }
 }

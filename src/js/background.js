@@ -1,4 +1,4 @@
-import { Actor, Vector, CollisionType } from "excalibur";
+import { Actor, CollisionType } from "excalibur";
 import { Resources } from './resources.js';
 
 export class Background extends Actor {
@@ -8,27 +8,28 @@ export class Background extends Actor {
       x: xPos,
       y: 300,
       width: 1000,
-      height: 600
+      height: 600,
+      collisionType: CollisionType.PreventCollision // Direct instellen in de super call is veiliger
     });
-    this.body.collisionType = CollisionType.PreventCollision;
     this.vel.x = -200;
-    this.key = key
+    this.key = key;
   }
 
   // onInitialize: zet de sprite afbeelding voor deze achtergrond
   onInitialize(engine) {
-    this.setImage(this.key)
+    this.setImage(this.key);
   }
 
   // setImage: kiest welke resource-achtergrond afbeelding gebruikt wordt
   setImage(key) {
-    this.key = key
+    this.key = key;
     if (Resources[key]) {
-      this.graphics.use(Resources[key].toSprite())
+      this.graphics.use(Resources[key].toSprite());
     }
   }
 
   // onPostUpdate: per-frame logica voor de achtergrond (placeholder)
   onPostUpdate(engine) {
+    // Wordt afgehandeld door de hoofd-game loop voor wrapping
   }
 }

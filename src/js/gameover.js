@@ -17,7 +17,8 @@ export class GameOver {
 
     this.keyHandler = (e) => {
       if (!e.key) return
-      if (e.key.toLowerCase() === 'r') {
+      // Alleen herstarten als het scherm daadwerkelijk in de DOM staat
+      if (e.key.toLowerCase() === 'r' && this.overlay.parentNode) {
         this.hide()
         window.location.reload()
       }
